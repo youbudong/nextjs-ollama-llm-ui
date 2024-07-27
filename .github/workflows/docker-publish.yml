@@ -19,7 +19,7 @@ env:
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
   # NEXT_PUBLIC_OLLAMA_URL
-  NEXT_PUBLIC_OLLAMA_URL: ${{ secrets.NEXT_PUBLIC_OLLAMA_URL }}
+  NEXT_PUBLIC_OLLAMA_URL: ${{ vars.NEXT_PUBLIC_OLLAMA_URL }}
 
 
 jobs:
