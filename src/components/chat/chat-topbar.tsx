@@ -44,26 +44,26 @@ export default function ChatTopbar({
     const env = process.env.NODE_ENV;
 
     const fetchModels = async () => {
-      if (env === "production") {
-        const fetchedModels = await fetch(process.env.NEXT_PUBLIC_OLLAMA_URL + "/api/tags");
-        const json = await fetchedModels.json();
-        const apiModels = json.models.map((model : any) => model.name);
-        setModels([...apiModels]);
-      } 
-      else {
-        const fetchedModels = await fetch("/api/tags") 
-        const json = await fetchedModels.json();
-        const apiModels = json.models.map((model : any) => model.name);
-        setModels([...apiModels]);
-    }
-    }
+      // if (env === "production") {
+      //   const fetchedModels = await fetch(process.env.NEXT_PUBLIC_OLLAMA_URL + "/api/tags");
+      //   const json = await fetchedModels.json();
+      //   const apiModels = json.models.map((model : any) => model.name);
+      //   setModels([...apiModels]);
+      // }
+      // else {
+      const fetchedModels = await fetch("/api/tags");
+      const json = await fetchedModels.json();
+      const apiModels = json.models.map((model: any) => model.name);
+      setModels([...apiModels]);
+      // }
+    };
     fetchModels();
   }, []);
 
   const handleModelChange = (model: string) => {
     setCurrentModel(model);
     setSelectedModel(model);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.setItem("selectedModel", model);
     }
     setOpen(false);

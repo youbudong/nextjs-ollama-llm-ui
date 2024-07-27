@@ -39,91 +39,91 @@ export default function PullModelForm() {
 
     setIsDownloading(true);
     // Send the model name to the server
-    if (env === "production") {
-      // Make a post request to localhost
-      const pullModel = async () => {
-        const response = await fetch(process.env.NEXT_PUBLIC_OLLAMA_URL + "/api/pull", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-        const json = await response.json();
-        if (json.error) {
-          toast.error("Error: " + json.error);
-          setIsDownloading(false);
-          return;
-        } else if (json.status === "success") {
-          toast.success("Model pulled successfully");
-          setIsDownloading(false);
-          return;
+    // if (env === "production") {
+    //   // Make a post request to localhost
+    //   const pullModel = async () => {
+    //     const response = await fetch(process.env.NEXT_PUBLIC_OLLAMA_URL + "/api/pull", {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify(data),
+    //     });
+    //     const json = await response.json();
+    //     if (json.error) {
+    //       toast.error("Error: " + json.error);
+    //       setIsDownloading(false);
+    //       return;
+    //     } else if (json.status === "success") {
+    //       toast.success("Model pulled successfully");
+    //       setIsDownloading(false);
+    //       return;
+    //     }
+    //   }
+    //   pullModel();
+    // } else {
+    fetch("/api/model", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        // Check if response is successful
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-      }
-      pullModel();
-    } else {
-      fetch("/api/model", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-        .then((response) => {
-          // Check if response is successful
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
+        if (!response.body) {
+          throw new Error("Something went wrong");
+        }
+        // Create a new ReadableStream from the response body
+        const reader = response.body.getReader();
+
+        // Read the data in chunks
+        reader.read().then(function processText({ done, value }) {
+          if (done) {
+            setIsDownloading(false);
+            return;
           }
-          if (!response.body) {
-            throw new Error("Something went wrong");
-          }
-          // Create a new ReadableStream from the response body
-          const reader = response.body.getReader();
-  
-          // Read the data in chunks
-          reader.read().then(function processText({ done, value }) {
-            if (done) {
-              setIsDownloading(false);
-              return;
-            }
-  
-            // Convert the chunk of data to a string
-            const text = new TextDecoder().decode(value);
-  
-            // Split the text into individual JSON objects
-            const jsonObjects = text.trim().split("\n");
-  
-            jsonObjects.forEach((jsonObject) => {
-              try {
-                const responseJson = JSON.parse(jsonObject);
-                if (responseJson.error) {
-                  // Display an error toast if the response contains an error
-                  toast.error("Error: " + responseJson.error);
-                  setIsDownloading(false);
-                  return;
-                } else if (responseJson.status === "success") {
-                  // Display a success toast if the response status is success
-                  toast.success("Model pulled successfully");
-                  setIsDownloading(false);
-                  return;
-                }
-              } catch (error) {
-                toast.error("Error parsing JSON");
+
+          // Convert the chunk of data to a string
+          const text = new TextDecoder().decode(value);
+
+          // Split the text into individual JSON objects
+          const jsonObjects = text.trim().split("\n");
+
+          jsonObjects.forEach((jsonObject) => {
+            try {
+              const responseJson = JSON.parse(jsonObject);
+              if (responseJson.error) {
+                // Display an error toast if the response contains an error
+                toast.error("Error: " + responseJson.error);
+                setIsDownloading(false);
+                return;
+              } else if (responseJson.status === "success") {
+                // Display a success toast if the response status is success
+                toast.success("Model pulled successfully");
                 setIsDownloading(false);
                 return;
               }
-            });
-  
-            // Continue reading the next chunk
-            reader.read().then(processText);
+            } catch (error) {
+              toast.error("Error parsing JSON");
+              setIsDownloading(false);
+              return;
+            }
           });
-        })
-        .catch((error) => {
-          setIsDownloading(false);
-          console.error("Error pulling model:", error);
-          toast.error("Error pulling model");
+
+          // Continue reading the next chunk
+          reader.read().then(processText);
         });
-    }
+      })
+      .catch((error) => {
+        setIsDownloading(false);
+        console.error("Error pulling model:", error);
+        toast.error("Error pulling model");
+      });
+    // }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

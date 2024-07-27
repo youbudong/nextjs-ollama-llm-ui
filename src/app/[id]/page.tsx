@@ -42,13 +42,13 @@ export default function Page({ params }: { params: { id: string } }) {
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
   useEffect(() => {
-    if (env === "production") {
-      const newOllama = new ChatOllama({
-        baseUrl: process.env.NEXT_PUBLIC_OLLAMA_URL || "http://localhost:11434",
-        model: selectedModel,
-      });
-      setOllama(newOllama);
-    }
+    // if (env === "production") {
+    //   const newOllama = new ChatOllama({
+    //     baseUrl: process.env.NEXT_PUBLIC_OLLAMA_URL || "http://localhost:11434",
+    //     model: selectedModel,
+    //   });
+    //   setOllama(newOllama);
+    // }
   }, [selectedModel]);
 
   React.useEffect(() => {
@@ -129,13 +129,13 @@ export default function Page({ params }: { params: { id: string } }) {
       },
     };
 
-    if (env === "production" && selectedModel !== "REST API") {
-      handleSubmitProduction(e);
-    } else {
-      // use the /api/chat route
-      // Call the handleSubmit function with the options
-      handleSubmit(e, requestOptions);
-    }
+    // if (env === "production" && selectedModel !== "REST API") {
+    //   handleSubmitProduction(e);
+    // } else {
+    // use the /api/chat route
+    // Call the handleSubmit function with the options
+    handleSubmit(e, requestOptions);
+    // }
   };
 
   // When starting a new chat, append the messages to the local storage
